@@ -1,12 +1,13 @@
 import { Fragment, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
-import { getFilteredEvents } from "../../helpers/api-util";
+// import { getFilteredEvents } from "../../helpers/api-util";
 import EventList from "../../components/events/event-list";
 import ResultsTitle from "../../components/events/results-title";
 import Button from "../../components/ui/button";
 import ErrorAlert from "../../components/ui/error-alert";
 import useSWR from "swr";
+import Head from "next/head";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -31,8 +32,20 @@ function FilteredEventsPage(props) {
     }
   }, [data]);
 
+  let pageHeaderData = (
+    <Head>
+      <title>Filtered Events</title>
+      <meta name="description" content="a list of filtered events" />
+    </Head>
+  );
+
   if (!loadedEvents) {
-    return <p className="center">Loading...</p>;
+    return (
+      <Fragment>
+        {pageHeaderData}
+        <p className="center">Loading...</p>
+      </Fragment>
+    );
   }
 
   const filteredYear = filterData[0];
@@ -40,6 +53,16 @@ function FilteredEventsPage(props) {
 
   const numYear = +filteredYear;
   const numMonth = +filteredMonth;
+
+  pageHeaderData = (
+    <Head>
+      <title>Filtered Events</title>
+      <meta
+        name="description"
+        content={`All events for ${numMonth}/${numYear}`}
+      />
+    </Head>
+  );
 
   if (
     isNaN(numYear) ||
@@ -52,6 +75,7 @@ function FilteredEventsPage(props) {
   ) {
     return (
       <Fragment>
+        {pageHeaderData}
         <ErrorAlert>
           <p>Invalid filter. Please adjust your values!</p>
         </ErrorAlert>
@@ -73,6 +97,7 @@ function FilteredEventsPage(props) {
   if (!filteredEvents || filteredEvents.length === 0) {
     return (
       <Fragment>
+        {pageHeaderData}
         <ErrorAlert>
           <p>No events found for the chosen filter!</p>
         </ErrorAlert>
@@ -87,6 +112,7 @@ function FilteredEventsPage(props) {
 
   return (
     <Fragment>
+      {pageHeaderData}
       <ResultsTitle date={date} />
       <EventList items={filteredEvents} />
     </Fragment>
